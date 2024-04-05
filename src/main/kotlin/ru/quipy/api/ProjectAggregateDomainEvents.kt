@@ -6,7 +6,7 @@ import java.util.*
 
 const val PROJECT_CREATED_EVENT = "PROJECT_CREATED_EVENT"
 const val PARTICIPANT_ADDED_EVENT = "PARTICIPANT_ADDED_EVENT"
-const val PROJECT_TITLE_EDITED_EVENT = "PROJECT_TITLE_EDITE_EVENT"
+const val PROJECT_TITLE_EDIT_EVENT = "PROJECT_TITLE_EDIT_EVENT"
 const val STATUS_CREATED_EVENT = "STATUS_CREATED_EVENT"
 const val STATUS_DELETED_EVENT = "STATUS_DELETED_EVENT"
 
@@ -32,13 +32,13 @@ class ParticipantAddedEvent(
     createdAt = createdAt
 )
 
-@DomainEvent(name = PROJECT_TITLE_EDITED_EVENT)
+@DomainEvent(name = PROJECT_TITLE_EDIT_EVENT)
 class EditProjectTitleEvent(
     val projectId: UUID,
     val title: String,
     createdAt: Long = System.currentTimeMillis()
 ) : Event<ProjectAggregate>(
-    name = PROJECT_TITLE_EDITED_EVENT,
+    name = PROJECT_TITLE_EDIT_EVENT,
     createdAt = createdAt
 )
 
