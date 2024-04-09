@@ -14,11 +14,11 @@ import ru.quipy.streams.AggregateSubscriptionsManager
 import javax.annotation.PostConstruct
 
 @Service
-class StatusesViewSubscriber(
+class StatusesEventSubscriber(
     @Autowired var subscriptionsManager: AggregateSubscriptionsManager,
     @Autowired var repository: StatusRepository
 ) {
-    val logger: Logger = LoggerFactory.getLogger(StatusesViewSubscriber::class.java)
+    val logger: Logger = LoggerFactory.getLogger(StatusesEventSubscriber::class.java)
 
     @PostConstruct
     fun init() {

@@ -6,20 +6,19 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import ru.quipy.api.TaskAggregate
-import ru.quipy.api.TaskCreatedEvent
-import ru.quipy.api.TaskEditedEvent
-import ru.quipy.api.TaskStatusAssignedEvent
+import ru.quipy.api.*
+import ru.quipy.repository.TaskExecutorRepository
 import ru.quipy.repository.TaskViewRepository
 import ru.quipy.streams.AggregateSubscriptionsManager
 import javax.annotation.PostConstruct
 
 @Service
-class TasksViewEventSubscriber(
+class TasksEventSubscriber(
     @Autowired var subscriptionsManager: AggregateSubscriptionsManager,
-    @Autowired var repository: TaskViewRepository
+    @Autowired var taskViewRepository: TaskViewRepository,
+    @Autowired var executorRepository: TaskExecutorRepository
 ) {
-    val logger: Logger = LoggerFactory.getLogger(TasksViewEventSubscriber::class.java)
+    val logger: Logger = LoggerFactory.getLogger(TasksEventSubscriber::class.java)
 
     @PostConstruct
     fun init() {
@@ -30,25 +29,33 @@ class TasksViewEventSubscriber(
                 val task =
                     TasksViewDomain.Task(event.taskId, event.projectId, event.taskTitle, event.statusId)
                 withContext(Dispatchers.IO) {
-                    repository.save(task)
+                    taskViewRepository.save(task)
                 }
             }
 
             `when`(TaskEditedEvent::class) { event ->
                 logger.info("Task edited: taskId:{}", event.taskId)
                 withContext(Dispatchers.IO) {
-                    val task = repository.findById(event.taskId).orElseThrow()
+                    val task = taskViewRepository.findById(event.taskId).orElseThrow()
                     task.name = event.title
-                    repository.save(task)
+                    taskViewRepository.save(task)
                 }
             }
 
             `when`(TaskStatusAssignedEvent::class) { event ->
                 logger.info("Task edited: taskId:{}", event.taskId)
                 withContext(Dispatchers.IO) {
-                    val task = repository.findById(event.taskId).orElseThrow()
+                    val task = taskViewRepository.findById(event.taskId).orElseThrow()
                     task.statusId = event.statusId
-                    repository.save(task)
+                    taskViewRepository.save(task)
+                }
+            }
+
+            `when`(ExecutorsAddedEvent::class) { event ->
+                logger.info("Executor added: taskId:{} executorId{}", event.taskId, event.executorsIds)
+                val taskExecutors = TasksViewDomain.TaskExecutor(event.taskId, event.executorsIds)
+                withContext(Dispatchers.IO) {
+                    executorRepository.save(taskExecutors)
                 }
             }
         }

@@ -12,4 +12,10 @@ class TasksViewDomain {
         var name: String,
         var statusId: UUID,
     ) : Unique<UUID>
+
+    data class TaskExecutor(
+        @Id
+        override val id: UUID,
+        val executorIds: Set<UUID>
+    ) : Unique<UUID>
 }
